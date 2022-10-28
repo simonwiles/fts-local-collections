@@ -14,12 +14,27 @@
 <body>
   <main>
     <button id="select">select files</button>
-    <button id="index">build index</button>
-    <input type="text" id="search-terms" />
-    <button id="search">do search</button>
-    <button id="clear">clear results</button>
+    <button id="index" disabled>build index</button>
+    <input type="text" id="search-terms" disabled />
+    <button id="search" disabled>do search</button>
     <img class="loader"
       src="data:image/gif;base64,R0lGODlhKwALAKECAOPmyf7+/f///////yH/C05FVFNDQVBFMi4wAwEAAAAh+QQBCgABACwAAAAAKwALAAACMgyOGMuW2diD88UKG95W88uF4DaGWFmhZid93pq+pwxnLUnXh8ou+sSz+T64ICAyTBUAACH5BAEKAAIALAAAAAArAAsAAAI9VI4oywIPYWOxmoTDrHzzmGHe94xkmJifyqFKQ0pwDLgHa82xrekkDrIBZRQab1jyfY7KTtPimixiUsevAAAh+QQBCgADACwAAAAAKwALAAACPRyOOMsTD2FjqZpqW9xv4g8CE7d54XmMpNSgqLoGpgvC60xjNonnyc7p+VKamKw1zDCMR8rp8pksYlKorgAAIfkEAQoAAwAsAAAAACsACwAAAkAcjjjLltlYmJS6Bxt+sfq5ZUyoNJ9HHlEKdCfFrqn7BrE2m7Wdj/2y45FkQ13t5itKdshFcxC8YCLOEBX6GhQAADs=" />
+
+    <ul>
+      <li>
+        <strong>Wildcards <code>*</code></strong>: search for <code>fo*</code>, <code>*oo</code>, or
+        <code>f*o</code>
+      </li>
+      <li>
+        <strong>Fuzzy matching <code>~</code></strong>: search for <code>foo~1</code> returns results within edit
+        distance 1 of "foo"
+      </li>
+      <li>
+        <strong>Inclusion <code>+</code> and exclusion <code>-</code></strong>: search for <code>+foo</code> MUST
+        contain "foo", search for <code>-foo</code> MUST NOT contain "foo". Search for <code>foo</code> MAY contain
+        "foo".
+      </li>
+    </ul>
     <pre id="log"></pre>
     <pre id="results"></pre>
   </main>

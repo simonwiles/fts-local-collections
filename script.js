@@ -5,6 +5,12 @@ const logEl = document.getElementById("log");
 const resultsEl = document.getElementById("results");
 const loaderEl = document.querySelector("img.loader");
 
+const log = (text, end = "\n\n") => {
+  logEl.innerText += text;
+  logEl.innerText += end;
+  logEl.scrollTop = logEl.scrollHeight;
+};
+
 async function* getFilesRecursively(entry, pathname) {
   if (entry.kind === "file") {
     const file = await entry.getFile();
@@ -21,25 +27,17 @@ async function* getFilesRecursively(entry, pathname) {
 
 const getHandle = async () => {
   dirHandle = await showDirectoryPicker({ id: "winnow" });
-  logEl.innerText += `Folder "${dirHandle.name}" selected.\n\n`;
+  log(`Folder "${dirHandle.name}" selected.`);
+  document.getElementById("index").disabled = false;
 };
 
-// Custom plugin to make matched terms available in their original form
-//  (for the purpose of highlighting in context)
-var originalWordMetadata = (builder) => {
-  // Define a pipeline function that stores the token length as metadata
-  var pipelineFunction = (token) => {
+const originalWordMetadata = (builder) => {
+  const pipelineFunction = (token) => {
     token.metadata["originalWord"] = token.toString();
     return token;
   };
-
-  // Register the pipeline function so the index can be serialised
   lunr.Pipeline.registerFunction(pipelineFunction, "originalWordMetadata");
-
-  // Add the pipeline function to the indexing pipeline
   builder.pipeline.before(lunr.stemmer, pipelineFunction);
-
-  // Whitelist the tokenLength metadata key
   builder.metadataWhitelist.push("originalWord");
 };
 
@@ -56,9 +54,7 @@ const buildIdx = () => {
   idx = lunr(function () {
     this.ref("id");
     this.field("text");
-
     this.use(originalWordMetadata);
-
     documents.forEach((doc) => this.add(doc));
   });
 };
@@ -66,18 +62,18 @@ const buildIdx = () => {
 const buildIndex = async () => {
   loaderEl.style.display = "inline";
   let t = new Date();
-  logEl.innerText += `Reading contents of ${dirHandle.name}...`;
+  log(`Reading contents of ${dirHandle.name}...`, "");
   await readFileContents();
-  logEl.innerText += ` done! [Read ${documents.length} files in ${
-    (new Date() - t) / 1000
-  }s]\n\n`;
+  log(` done! [Read ${documents.length} files in ${(new Date() - t) / 1000}s]`);
 
-  logEl.innerText += "Building index...";
+  log("Building index...", "");
   setTimeout(() => {
     t = new Date();
     buildIdx();
-    logEl.innerText += ` done! [${(new Date() - t) / 1000}s elapsed]\n\n`;
+    log(` done! [${(new Date() - t) / 1000}s elapsed]`);
     loaderEl.style.display = "none";
+    document.getElementById("search").disabled = false;
+    document.getElementById("search-terms").disabled = false;
   }, 100);
 };
 
@@ -89,10 +85,10 @@ const flattenMatches = (result) => {
 
 const doSearch = () => {
   const searchTerms = document.getElementById("search-terms").value;
-  logEl.innerText += `Searching for ${searchTerms}...\n\n`;
+  log(`Searching for ${searchTerms}...`);
   let t = new Date();
   const results = idx.search(searchTerms);
-  resultsEl.innerText += `Found results in ${results.length} files! [${
+  resultsEl.innerText = `Found results in ${results.length} files! [${
     (new Date() - t) / 1000
   }s elapsed]\n\n`;
 
@@ -107,6 +103,3 @@ const doSearch = () => {
 document.getElementById("select").addEventListener("click", getHandle);
 document.getElementById("index").addEventListener("click", buildIndex);
 document.getElementById("search").addEventListener("click", doSearch);
-document
-  .getElementById("clear")
-  .addEventListener("click", () => (resultsEl.innerText = ""));
