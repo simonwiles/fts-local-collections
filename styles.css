@@ -1,0 +1,27 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 1em;
+}
+
+pre {
+  overflow-y: scroll;
+  background-color: #eaeaea;
+  padding: 0.5em;
+}
+
+#log {
+  height: 200px;
+}
+
+#results {
+  height: 400px;
+}
+
+img.loader {
+  display: none;
+}
