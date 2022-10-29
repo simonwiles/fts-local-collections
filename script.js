@@ -1,3 +1,9 @@
+import {
+  create,
+  search,
+  insert,
+} from "https://unpkg.com/@lyrasearch/lyra@latest/dist/esm/src/lyra.js";
+
 let dirHandle;
 let idx;
 const documents = [];
@@ -46,17 +52,18 @@ const readFileContents = async () => {
     dirHandle,
     dirHandle.name,
   )) {
-    documents.push({ id: fileHandle.name, text: await fileHandle.text() });
+    documents.push({ fn: fileHandle.name, text: await fileHandle.text() });
   }
 };
 
 const buildIdx = () => {
-  idx = lunr(function () {
-    this.ref("id");
-    this.field("text");
-    this.use(originalWordMetadata);
-    documents.forEach((doc) => this.add(doc));
+  idx = create({
+    schema: {
+      fn: "string",
+      text: "string",
+    },
   });
+  documents.forEach((doc) => insert(idx, doc));
 };
 
 const buildIndex = async () => {
@@ -87,17 +94,18 @@ const doSearch = () => {
   const searchTerms = document.getElementById("search-terms").value;
   log(`Searching for ${searchTerms}...`);
   let t = new Date();
-  const results = idx.search(searchTerms);
-  resultsEl.innerText = `Found results in ${results.length} files! [${
+  const results = search(idx, { term: searchTerms });
+  resultsEl.innerText = `Found results in ${results.count} files! [${
     (new Date() - t) / 1000
   }s elapsed]\n\n`;
 
-  results.forEach((result) => {
-    const flattenedMatches = flattenMatches(result);
-    resultsEl.innerText += ` => [${result.score}] ${result.ref}: found ${
-      flattenedMatches.length
-    } matches\n${flattenedMatches.join(", ")}\n\n`;
-  });
+  console.log(results);
+  // results.forEach((result) => {
+  //   const flattenedMatches = flattenMatches(result);
+  //   resultsEl.innerText += ` => [${result.score}] ${result.ref}: found ${
+  //     flattenedMatches.length
+  //   } matches\n${flattenedMatches.join(", ")}\n\n`;
+  // });
 };
 
 document.getElementById("select").addEventListener("click", getHandle);
