@@ -51,11 +51,18 @@ const readFileContents = async () => {
 };
 
 const buildIdx = () => {
-  idx = lunr(function () {
-    this.ref("id");
-    this.field("text");
-    this.use(originalWordMetadata);
-    documents.forEach((doc) => this.add(doc));
+  // idx = lunr(function () {
+  //   this.ref("id");
+  //   this.field("text");
+  //   this.use(originalWordMetadata);
+  //   documents.forEach((doc) => this.add(doc));
+  // });
+  idx = new Fuse(documents, {
+    keys: ["text"],
+    includeMatches: true,
+    ignoreLocation: true,
+    ignoreFieldNorm: true,
+    useExtendedSearch: true,
   });
 };
 
@@ -91,13 +98,13 @@ const doSearch = () => {
   resultsEl.innerText = `Found results in ${results.length} files! [${
     (new Date() - t) / 1000
   }s elapsed]\n\n`;
-
-  results.forEach((result) => {
-    const flattenedMatches = flattenMatches(result);
-    resultsEl.innerText += ` => [${result.score}] ${result.ref}: found ${
-      flattenedMatches.length
-    } matches\n${flattenedMatches.join(", ")}\n\n`;
-  });
+  console.log(results);
+  // results.forEach((result) => {
+  //   const flattenedMatches = flattenMatches(result);
+  //   resultsEl.innerText += ` => [${result.score}] ${result.ref}: found ${
+  //     flattenedMatches.length
+  //   } matches\n${flattenedMatches.join(", ")}\n\n`;
+  // });
 };
 
 document.getElementById("select").addEventListener("click", getHandle);
